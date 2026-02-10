@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Seller Inbox</title>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+<style>
+body { margin:0; font-family:Arial; display:flex; height:100vh; background:#ece5dd; }
+#sidebar { width:300px; background:white; border-right:1px solid #ccc; overflow-y:auto; }
+.user { padding:15px; cursor:pointer; border-bottom:1px solid #eee; }
+.user.active { background:#e6e6e6; }
+#chatArea { flex:1; display:flex; flex-direction:column; }
+.header { background:#075e54; color:white; padding:15px; }
+#chat { flex:1; padding:10px; overflow-y:auto; }
+.msg { max-width:70%; padding:10px; margin:6px; border-radius:10px; }
+.me { background:#dcf8c6; margin-left:auto; }
+.other { background:white; }
+.input { display:flex; padding:10px; background:white; }
+input { flex:1; padding:10px; border-radius:20px; border:1px solid #ccc; }
+button { background:#075e54; color:white; border:none; padding:10px 15px; border-radius:50%; }
+</style>
+</head>
+
+<body>
+
+<div id="sidebar"></div>
+
+<div id="chatArea">
+    <div class="header" id="title">Select a chat</div>
+    <div id="chat"></div>
+
+    <div class="input">
+        <input id="message" placeholder="Reply">
+        <button onclick="send()">➤</button>
+    </div>
+</div>
+
+<script>
+const socket = io("http://127.0.0.1:5000");
+const seller = "Seller";
+
+let chats = {};
+let activeUser = null;
+
+const sidebar = document.getElementById("sidebar");
+const chat = document.getElementById("chat");
+const title = document.getElementById("title");
+
+socket.on("connect", () => {
+    socket.emit("join_seller");
+});
+
+socket.on("receive_message", data => {
+    const user = data.sender;
+
+    if (!chats[user]) chats[user] = [];
+    chats[user].push(data);
+
+    renderSidebar();
+    if (activeUser === user) renderChat();
+});
+
+function renderSidebar() {
+    sidebar.innerHTML = "";
+
+    const users = Object.keys(chats).sort((a, b) => {
+        return chats[b].length - chats[a].length;
+    });
+
+    users.forEach(user => {
+        const lastMsg = chats[user][chats[user].length - 1].message;
+        const div = document.createElement("div");
+        div.className = "user" + (user === activeUser ? " active" : "");
+        div.onclick = () => openChat(user);
+        div.innerHTML = `<b>${user}</b><br><small>${lastMsg}</small>`;
+        sidebar.appendChild(div);
+    });
+}
+
+function openChat(user) {
+    activeUser = user;
+    title.innerText = user;
+    socket.emit("join", { room: "chat_" + user });
+    renderChat();
+    renderSidebar();
+}
+
+function renderChat() {
+    chat.innerHTML = "";
+    chats[activeUser].forEach(m => {
+        const div = document.createElement("div");
+        div.className = "msg " + (m.sender === seller ? "me" : "other");
+        div.innerHTML = `<b>${m.sender}</b><br>${m.message}`;
+        chat.appendChild(div);
+    });
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function send() {
+    if (!activeUser) return;
+
+    const msg = document.getElementById("message");
+    if (!msg.value) return;
+
+    const data = {
+        room: "chat_" + activeUser,
+        sender: seller,
+        message: msg.value
+    };
+
+    socket.emit("send_message", data);
+    chats[activeUser].push(data);
+
+    msg.value = "";
+    renderChat();
+    renderSidebar();
+}
+</script>
+
+</body>
+</html>
