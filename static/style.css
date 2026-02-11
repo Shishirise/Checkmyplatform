@@ -14,10 +14,10 @@ body {
     justify-content: center;
     align-items: center;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: #ffede; /* soft background */
+    background: #ffede;
 }
 
-/* Topic title */
+/* Title */
 .topic {
     font-family: 'Orbitron', sans-serif;
     font-size: 36px;
@@ -40,22 +40,24 @@ body {
     border: 2px solid rgba(1,1,1,0.6);
     backdrop-filter: blur(10px);
     box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    transition: background 0.2s ease;
 }
 
+/* Labels */
 .slide-labels {
     position: absolute;
     width: 100%;
     display: flex;
     justify-content: space-between;
-    padding: 0 1px;
+    padding: 0 20px;
     font-weight: bold;
-    color: white;
     pointer-events: none;
 }
 
 .player-label { color: var(--player-color); }
 .agent-label { color: var(--agent-color); }
 
+/* Handle */
 .slide-handle {
     position: absolute;
     left: calc(50% - 35px);
@@ -68,11 +70,14 @@ body {
     align-items: center;
     cursor: pointer;
     z-index: 2;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 15px rgba(255,255,255,0.5);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4),
+                0 0 15px rgba(255,255,255,0.5);
     transition: transform 0.3s ease, box-shadow 0.2s ease;
-    font-size: 30px;
+    font-size: 28px;
+    user-select: none;
 }
 
 .slide-handle.dragging {
-    box-shadow: 0 4px 25px rgba(0,0,0,0.5), 0 0 25px rgba(255,255,255,0.8);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.5),
+                0 0 25px rgba(255,255,255,0.8);
 }

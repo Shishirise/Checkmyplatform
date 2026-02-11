@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Choose Your Role</title>
+
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
 <div class="topic">Choose Your Role</div>
@@ -16,23 +18,32 @@
         <span class="agent-label">AGENT ▶</span>
     </div>
 
-    <div class="slide-handle" id="slideHandle">&#10094; &#10095;</div>
+    <div class="slide-handle" id="slideHandle">&#10094;&nbsp;&#10095;</div>
 </div>
 
 <script>
-const handle = document.getElementById('slideHandle');
-const wrapper = document.getElementById('slideWrapper');
-let dragging = false, startX = 0, currentX = 0;
+const handle = document.getElementById("slideHandle");
+const wrapper = document.getElementById("slideWrapper");
+
+let dragging = false;
+let startX = 0;
+let currentX = 0;
 
 function getCenter() {
     return (wrapper.offsetWidth - handle.offsetWidth) / 2;
 }
 
+function resetSlider() {
+    handle.style.transform = "translateX(0)";
+    wrapper.style.background = "var(--glass-bg)";
+    currentX = 0;
+}
+
 function startDrag(e) {
     dragging = true;
     startX = e.touches ? e.touches[0].clientX : e.clientX;
-    handle.style.transition = 'none';
-    handle.classList.add('dragging');
+    handle.style.transition = "none";
+    handle.classList.add("dragging");
 }
 
 function dragMove(e) {
@@ -65,22 +76,30 @@ function dragMove(e) {
 function endDrag() {
     if (!dragging) return;
     dragging = false;
-    handle.style.transition = 'transform 0.3s ease';
-    handle.classList.remove('dragging');
+
+    handle.style.transition = "transform 0.3s ease";
+    handle.classList.remove("dragging");
 
     const threshold = getCenter() * 0.6;
-    if (currentX < -threshold) window.location.href = "/player";
-    else if (currentX > threshold) window.location.href = "/agent";
 
-    handle.style.transform = 'translateX(0)';
+    if (currentX < -threshold) {
+        window.location.href = "/player";
+    } else if (currentX > threshold) {
+        window.location.href = "/agent";
+    }
+
+    resetSlider();
 }
 
-handle.addEventListener('touchstart', startDrag);
-handle.addEventListener('touchmove', dragMove);
-handle.addEventListener('touchend', endDrag);
-handle.addEventListener('mousedown', startDrag);
-document.addEventListener('mousemove', dragMove);
-document.addEventListener('mouseup', endDrag);
+handle.addEventListener("mousedown", startDrag);
+document.addEventListener("mousemove", dragMove);
+document.addEventListener("mouseup", endDrag);
+
+handle.addEventListener("touchstart", startDrag);
+handle.addEventListener("touchmove", dragMove);
+handle.addEventListener("touchend", endDrag);
+
+window.addEventListener("pageshow", resetSlider);
 </script>
 
 </body>
