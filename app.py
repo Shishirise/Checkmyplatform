@@ -16,7 +16,7 @@ socketio = SocketIO(
 # ---------- ROUTES ----------
 @app.route("/")
 def home():
-    return "✅ CheckMyPlatform backend is LIVE"
+    return "✅ CheckMyPlatform backend will be LIVE SOON"
 
 @app.route("/player")
 def player():
